@@ -8,10 +8,12 @@ Windows-first CLI tool for checking Greek residence permit status through the of
 - Switches to English
 - Fills surname and passport number from CLI arguments
 - Saves the CAPTCHA image locally as `captcha.png`
-- Opens the image with the default Windows image viewer
+- Opens the image using the default Windows image viewer
 - Waits for you to type the CAPTCHA value in the command prompt
 - Submits the form
 - Prints only the final permit status
+- Stores the last known status in `.status.json`
+- Can optionally print JSON output for automation
 
 ## Important
 
@@ -122,6 +124,35 @@ Or use the batch file:
 run-permit.bat DOE AA1234567
 ```
 
+## JSON output
+
+For automation or scripting, use:
+
+```bash
+node src/index.js DOE AA1234567 --json
+```
+
+Example output:
+
+```json
+{
+  "status": "THE APPLICATION HAS BEEN RECEIVED AND IS UNDER EXAMINATION",
+  "changed": false,
+  "previousStatus": "THE APPLICATION HAS BEEN RECEIVED AND IS UNDER EXAMINATION",
+  "checkedAt": "2026-04-15T12:00:00.000Z"
+}
+```
+
+## Status history
+
+The tool stores the last known status in:
+
+```text
+.status.json
+```
+
+This allows you to detect whether the status changed since the previous run.
+
 ## How the CAPTCHA flow works
 
 1. The script opens the official website
@@ -187,6 +218,7 @@ Do not commit:
 - `captcha.png`
 - `last-response.txt`
 - `last-response.png`
+- `.status.json`
 
 ## Disclaimer
 
