@@ -8,10 +8,8 @@ Windows-first CLI tool for checking Greek residence permit status through the of
 - Switches to English
 - Fills surname and passport number from CLI arguments
 - Saves the CAPTCHA image locally as `captcha.png`
-- Opens the image in Paint
-- Waits for new clipboard text automatically
-- Uses the copied clipboard value as the CAPTCHA
-- Closes Paint
+- Opens the image with the default Windows image viewer
+- Waits for you to type the CAPTCHA value in the command prompt
 - Submits the form
 - Prints only the final permit status
 
@@ -54,12 +52,6 @@ If no local browser is found, the tool falls back to the Playwright-managed brow
 The tool connects to:
 
 - `https://pf.emigrants.ypes.gr/pf/`
-
-### 4. Windows tools
-
-The default CAPTCHA viewer is:
-
-- `C:\Windows\System32\mspaint.exe`
 
 ## Installation
 
@@ -136,11 +128,11 @@ run-permit.bat DOE AA1234567
 2. The script switches to English
 3. The script fills surname and passport number
 4. The script saves `captcha.png`
-5. The script opens the image in Paint
-6. You read the CAPTCHA and copy the value to clipboard
-7. The script detects the new clipboard value automatically
-8. The script closes Paint
-9. The script submits the form
+5. The script opens the image using the default Windows image viewer
+6. You read the CAPTCHA value from the image
+7. You type the CAPTCHA value into the command prompt
+8. The script submits the form
+9. If needed, the script refreshes the CAPTCHA and retries
 10. The script prints only the status
 
 ## Output
@@ -167,13 +159,7 @@ Edit `src/browser.js` and add your browser path if needed.
 
 ### CAPTCHA image does not open
 
-Check that Paint exists:
-
-- `C:\Windows\System32\mspaint.exe`
-
-### The script waits for clipboard text
-
-Copy the CAPTCHA value to clipboard after the image opens.
+Make sure Windows has a default image viewer associated with PNG files.
 
 ### Status could not be parsed
 
