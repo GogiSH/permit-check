@@ -16,23 +16,26 @@ function parseFlags(argv) {
   };
 }
 
-function getCliArgs() {
+function getConfig() {
+  const flags = parseFlags(process.argv.slice(2));
   const args = process.argv.slice(2).filter((arg) => !arg.startsWith('--'));
-  const surname = args[0];
-  const passport = args[1];
+
+  const surname = args[0] || process.env.SURNAME;
+  const passport = args[1] || process.env.PASSPORT;
+  const timeoutMs = Number(process.env.TIMEOUT_MS || 60000);
 
   if (!surname || !passport) {
     console.error('Usage: node src/index.js <SURNAME> <PASSPORT> [--json]');
     console.error('Example: node src/index.js DOE AA1234567 --json');
+    console.error('You can also set SURNAME and PASSPORT as environment variables.');
     process.exit(1);
   }
 
-  return { surname, passport };
+  return { flags, surname, passport, timeoutMs };
 }
 
 async function main() {
-  const flags = parseFlags(process.argv.slice(2));
-  const { surname, passport } = getCliArgs();
+  const { flags, surname, passport, timeoutMs } = getConfig();
   const maxAttempts = 5;
 
   const { name: browserName, launchOptions } = buildLaunchOptions();
@@ -47,7 +50,7 @@ async function main() {
   try {
     await page.goto('https://pf.emigrants.ypes.gr/pf/', {
       waitUntil: 'domcontentloaded',
-      timeout: 60000,
+      timeout: timeoutMs,
     });
 
     await switchToEnglish(page);
@@ -71,7 +74,7 @@ async function main() {
       }
 
       const captcha = await resolveCaptchaValue(captchaPath, attempt, maxAttempts);
-      const { text, status } = await attemptSubmit(page, captcha);
+      const { text, status } = await attemptSubmit(page, captcha, timeoutMs);
 
       if (status) {
         const previous = readPreviousStatus();
@@ -83,22 +86,20 @@ async function main() {
         writeCurrentStatus(current);
 
         if (flags.json) {
-          const result = {
+          console.log(JSON.stringify({
             status,
             changed: previous ? previous.status !== status : null,
             previousStatus: previous ? previous.status : null,
             checkedAt: current.checkedAt
-          };
-          console.log(JSON.stringify(result, null, 2));
+          }, null, 2));
         } else {
           console.log(status);
-
           if (previous && previous.status !== status) {
             console.error(`Status changed: "${previous.status}" -> "${status}"`);
           }
         }
 
-        return;
+        process.exit(0);
       }
 
       if (attempt < maxAttempts) {

@@ -49,12 +49,12 @@ async function refreshCaptcha(page) {
   await page.waitForTimeout(500);
 }
 
-async function attemptSubmit(page, captchaText) {
+async function attemptSubmit(page, captchaText, timeoutMs) {
   await page.fill('#captcha', '');
   await page.fill('#captcha', captchaText);
 
   await Promise.all([
-    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => {}),
+    page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: timeoutMs }).catch(() => {}),
     page.locator('#submit').click(),
   ]);
 

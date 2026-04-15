@@ -1,12 +1,16 @@
 # Permit Check
 
+![Node](https://img.shields.io/badge/node-%3E%3D18-green)
+![Platform](https://img.shields.io/badge/platform-windows-blue)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
 Windows-first CLI tool for checking Greek residence permit status through the official public website.
 
 ## What it does
 
 - Opens the official page in a headless browser
 - Switches to English
-- Fills surname and passport number from CLI arguments
+- Fills surname and passport number from CLI arguments or environment variables
 - Saves the CAPTCHA image locally as `captcha.png`
 - Opens the image using the default Windows image viewer
 - Waits for you to type the CAPTCHA value in the command prompt
@@ -14,6 +18,16 @@ Windows-first CLI tool for checking Greek residence permit status through the of
 - Prints only the final permit status
 - Stores the last known status in `.status.json`
 - Can optionally print JSON output for automation
+
+## Why manual CAPTCHA?
+
+This tool intentionally requires manual CAPTCHA input.
+
+Reasons:
+- CAPTCHA is designed to prevent automation
+- OCR is unreliable for distorted images
+- Clipboard-based flows are fragile across environments
+- Manual entry is the most stable and predictable workflow
 
 ## Important
 
@@ -118,10 +132,41 @@ Example:
 node src/index.js DOE AA1234567
 ```
 
+Use compatibility wrapper:
+
+```bash
+node check-permit.js DOE AA1234567
+```
+
+Use installed binary locally after `npm install`:
+
+```bash
+npx permit-check DOE AA1234567
+```
+
 Or use the batch file:
 
 ```bat
 run-permit.bat DOE AA1234567
+```
+
+## Environment variables
+
+You can also pass values through environment variables.
+
+PowerShell:
+
+```powershell
+$env:SURNAME="DOE"
+$env:PASSPORT="AA1234567"
+node src/index.js
+```
+
+Optional timeout override:
+
+```powershell
+$env:TIMEOUT_MS="90000"
+node src/index.js DOE AA1234567
 ```
 
 ## JSON output
