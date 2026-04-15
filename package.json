@@ -1,6 +1,6 @@
 {
   "name": "permit-check",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Windows-first CLI tool for checking Greek residence permit status with manual CAPTCHA entry.",
   "main": "src/index.js",
   "type": "commonjs",

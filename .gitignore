@@ -4,6 +4,7 @@ captcha.png
 last-response.txt
 last-response.png
 result*.*
+.status.json
 .env
 .DS_Store
 Thumbs.db
