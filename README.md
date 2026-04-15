@@ -1,163 +1,210 @@
 # Permit Check
 
-Simple Windows CLI tool to check Greek residence permit status via the official website.
+Windows-first CLI tool for checking Greek residence permit status through the official public website.
 
----
+## What it does
 
-## ⚙️ Prerequisites
+- Opens the official page in a headless browser
+- Switches to English
+- Fills surname and passport number from CLI arguments
+- Saves the CAPTCHA image locally as `captcha.png`
+- Opens the image in Paint
+- Waits for new clipboard text automatically
+- Uses the copied clipboard value as the CAPTCHA
+- Closes Paint
+- Submits the form
+- Prints only the final permit status
+
+## Important
+
+This tool keeps a human in the loop for CAPTCHA entry.
+
+It does **not** bypass, solve, or evade CAPTCHA protections.
+
+## Prerequisites
 
 ### 1. Node.js
-Install Node.js (LTS recommended):
-https://nodejs.org/
 
-Verify:
+Install Node.js LTS:
+
+- https://nodejs.org/
+
+Verify installation:
+
+```bash
 node -v
 npm -v
-
----
+```
 
 ### 2. Browser
 
-Supported:
-- Microsoft Edge (recommended)
-- Google Chrome
+The tool prefers an already installed local browser and checks these paths in order:
 
-Default paths supported:
-- C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe
-- C:\Program Files\Microsoft\Edge\Application\msedge.exe
-- C:\Program Files\Google\Chrome\Application\chrome.exe
-- C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+- `C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe`
+- `C:\Program Files\Microsoft\Edge\Application\msedge.exe`
+- `C:\Program Files\Google\Chrome\Application\chrome.exe`
+- `C:\Program Files (x86)\Google\Chrome\Application\chrome.exe`
 
----
+If one of these is found, it will be used automatically.
 
-### 3. Internet Access
+If no local browser is found, the tool falls back to the Playwright-managed browser.
 
-Required endpoint:
-https://pf.emigrants.ypes.gr/pf/
+### 3. Internet access
 
----
+The tool connects to:
 
-## 🌐 Proxy Configuration (Optional)
+- `https://pf.emigrants.ypes.gr/pf/`
 
-If you are behind a corporate network or proxy:
+### 4. Windows tools
 
-### Option 1 — Environment variables
+The default CAPTCHA viewer is:
 
-Windows PowerShell:
+- `C:\Windows\System32\mspaint.exe`
 
-setx HTTP_PROXY http://user:password@proxy:port
-setx HTTPS_PROXY http://user:password@proxy:port
+## Installation
 
-Restart terminal after setting.
+Clone the repository:
 
----
-
-### Option 2 — Playwright config (advanced)
-
-Edit src/index.js:
-
-const browser = await chromium.launch({
-  headless: true,
-  proxy: {
-    server: "http://proxy:port",
-    username: "user",
-    password: "password"
-  }
-});
-
----
-
-## 📦 Installation
-
-git clone <your-repo-url>
+```bash
+git clone https://github.com/GogiSH/permit-check.git
 cd permit-check
+```
 
+Install dependencies:
+
+```bash
 npm install
+```
 
+## Playwright browser installation
+
+In most Windows setups, **you do not need this step**, because the tool uses your installed Edge or Chrome.
+
+Run this only if:
+
+- you do not have a supported local browser installed, or
+- you want to use the Playwright-managed browser fallback
+
+```bash
 npx playwright install
+```
 
----
+## Proxy configuration
 
-## 🚀 Usage
+If you are behind a corporate proxy, set proxy environment variables before running the tool.
 
-node src/index.js SURNAME PASSPORT
+PowerShell:
 
-Example:
+```powershell
+$env:HTTP_PROXY="http://user:password@proxy:port"
+$env:HTTPS_PROXY="http://user:password@proxy:port"
 node src/index.js DOE AA1234567
+```
 
-Or:
+Persistent Windows setting:
 
-run-permit.bat DOE AA1234567
+```powershell
+setx HTTP_PROXY "http://user:password@proxy:port"
+setx HTTPS_PROXY "http://user:password@proxy:port"
+```
 
----
+Then open a new terminal window.
 
-## 🔄 How it works
+## Usage
 
-1. Opens official website
-2. Switches to English
-3. Fills form
-4. Saves captcha.png
-5. Opens image in Paint
-6. Waits for clipboard input
-7. Submits form
-8. Prints status
+Run directly:
 
----
-
-## 🧠 CAPTCHA Flow
-
-Manual step required:
-- Read captcha
-- Copy text
-- Script continues automatically
-
----
-
-## 🖥 Output
+```bash
+node src/index.js SURNAME PASSPORT
+```
 
 Example:
+
+```bash
+node src/index.js DOE AA1234567
+```
+
+Or use the batch file:
+
+```bat
+run-permit.bat DOE AA1234567
+```
+
+## How the CAPTCHA flow works
+
+1. The script opens the official website
+2. The script switches to English
+3. The script fills surname and passport number
+4. The script saves `captcha.png`
+5. The script opens the image in Paint
+6. You read the CAPTCHA and copy the value to clipboard
+7. The script detects the new clipboard value automatically
+8. The script closes Paint
+9. The script submits the form
+10. The script prints only the status
+
+## Output
+
+Example:
+
+```text
 THE APPLICATION HAS BEEN RECEIVED AND IS UNDER EXAMINATION
+```
 
----
+## Troubleshooting
 
-## ⚠️ Troubleshooting
+### `npx playwright install` fails with `ENOTFOUND cdn.playwright.dev`
 
-### CAPTCHA not opening
-Check:
-C:\Windows\System32\mspaint.exe
+If you already have Edge or Chrome installed, skip `npx playwright install`.
+
+The tool is designed to work with your installed browser first.
+
+Only the Playwright fallback needs a Playwright browser download.
 
 ### Browser not found
-Edit src/browser.js
 
-### Script stuck
-Copy captcha text to clipboard
+Edit `src/browser.js` and add your browser path if needed.
 
-### Playwright issues
-npx playwright install
+### CAPTCHA image does not open
 
----
+Check that Paint exists:
 
-## 🔒 Security
+- `C:\Windows\System32\mspaint.exe`
 
-Do NOT commit:
-- surname
+### The script waits for clipboard text
+
+Copy the CAPTCHA value to clipboard after the image opens.
+
+### Status could not be parsed
+
+The tool saves:
+
+- `last-response.txt`
+- `last-response.png`
+
+Review them locally and do not commit them.
+
+## Security and privacy
+
+Do not commit:
+
+- real surname
 - passport number
-- result files
+- application IDs
+- generated result files
 - screenshots
-- local paths
+- local machine paths
+- any personal status output
 
----
+## Files that should stay out of Git
 
-## 📁 Ignored Files
+- `captcha.png`
+- `last-response.txt`
+- `last-response.png`
 
-captcha.png
-last-response.txt
-last-response.png
+## Disclaimer
 
----
-
-## 📌 Disclaimer
-
-- Uses official public website
-- No CAPTCHA bypass
-- Human interaction required
+- Uses a public official website
+- Requires human interaction for CAPTCHA
+- Does not bypass CAPTCHA
+- Intended for personal use
